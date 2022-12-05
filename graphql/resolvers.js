@@ -1,6 +1,8 @@
 const { PrismaClient } = require('@prisma/client');
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcryptjs');
+const Str = require('@supercharge/strings');
+
 
 const prisma = new PrismaClient();
 
@@ -38,29 +40,128 @@ const resolvers = {
         },
 
     },
+
     Mutation: {
         createUser: async function(parent, args){
+            const id = Str.random()
             const existingUser = await prisma.user.findFirst({ 
                 where: {
                     email: {
                         equals: args.email
                     }
-            }});
+                }
+            });
             if (existingUser) {
                 const error = new Error('User exists already!');
                 throw error;
                 }
             const hashedPw = await bcrypt.hash(args.password, 12);
+            if(!args.type === 'worker' || !args.type === 'student' ) {
+                const error = new Error('Bad type of account');
+                throw error;
+            }
             const createdUser = await prisma.user.create({
                 data: {
+                    id: id,
                     email: args.email,
                     password: hashedPw,
                     type: args.type
                 }
             })
+            if(args.type === "worker"){
+                await prisma.worker.create({
+                    data:{
+                        userId: id
+                    }
+                })
+            } else {
+                await prisma.student.create({
+                    data:{
+                        userId: id
+                    }
+                })
+            }
+
             return createdUser;
             
-        }
+        },
+
+        deleteUser: async function(parent, args){
+            const id = args.id;
+            let existingUser = await prisma.user.findFirst({ 
+                where: {
+                    id: id
+                }
+            });
+
+            if(existingUser.type === "worker"){
+                await prisma.worker.delete({
+                    where:{
+                        userId: id
+                    }
+                })
+            } else if (existingUser.type === "student") {
+                await prisma.student.delete({
+                    where:{
+                        userId: id
+                    }
+                })
+            }
+            await prisma.user.delete({ 
+                where: {
+                    id: id
+                }
+            });
+            existingUser = await prisma.user.findFirst({ 
+                where: {
+                    id: id
+                }
+            });
+            if(existingUser){
+                return false
+            } 
+                return true;
+        },
+
+        // updateUser: async function(parent, args){
+        //     const id = args.id;
+        //     const email = args.email;
+        //     const firstName = args.firstName;
+        //     let user = await prisma.user.findFirst({
+        //         where: {
+        //             id: id
+        //         }
+        //     })
+        //     if(user.type === "worker") {
+        //         const worker = await prisma.worker.update({
+        //             where: {
+        //                 userId: id
+        //             },
+        //             data: {
+        //                 firstName: firstName,
+        //                 position: position
+        //             }
+        //         })
+        //     } else if(user.type === "student") {
+        //         const student = await prisma.student.update({
+        //             where: {
+        //                 userId: id
+        //             },
+        //             data: {
+        //                 firstName: firstName
+        //             }
+        //         })
+        //     }
+        //     user = await prisma.user.update({
+        //         where: {
+        //             id: id
+        //         },
+        //         data: {
+        //             email: email,
+        //         }
+        //     })
+        //     return true;
+        // }
     }
 }
 
