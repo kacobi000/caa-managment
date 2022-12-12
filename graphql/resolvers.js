@@ -2,7 +2,15 @@ const { PrismaClient } = require('@prisma/client');
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcryptjs');
 const Str = require('@supercharge/strings');
+const Sib = require('sib-api-v3-sdk');
 
+const client = Sib.ApiClient.instance;
+
+const apiKey = client.authentications['api-key'];
+
+apiKey.apiKey = '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';
+
+const tranEmailApi = new Sib.TransactionalEmailsApi();
 
 const prisma = new PrismaClient();
 
@@ -38,6 +46,29 @@ const resolvers = {
               );
                 return { token: token, user: user }
         },
+        contactWithAdmin: async function(parent, args) {
+
+            const sender = {
+                email: 'caprojectmanagment@gmail.com'
+            };
+            
+            const receivers = [
+                {
+                    email: 'caprojectmanagment@gmail.com'
+                }
+            ];
+            
+           const message = await tranEmailApi.sendTransacEmail({
+                sender,
+                to: receivers,
+                subject: 'Example',
+                textContent: args.message
+            })
+            if(!message) {
+                return false;
+            }
+            return true;
+        }
 
     },
 
