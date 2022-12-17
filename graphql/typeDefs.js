@@ -32,6 +32,7 @@ const typeDefs = gql`
 
     type Query {
     login(email: String!, password: String!): AuthData!
+    contactWithAdmin(message: String!): Boolean!
     }
 
     type Mutation {
