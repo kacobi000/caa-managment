@@ -8,7 +8,7 @@ const client = Sib.ApiClient.instance;
 
 const apiKey = client.authentications['api-key'];
 
-apiKey.apiKey = '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';
+apiKey.apiKey = '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';
 
 const tranEmailApi = new Sib.TransactionalEmailsApi();
 
