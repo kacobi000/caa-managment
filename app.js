@@ -7,6 +7,8 @@ const { typeDefs } = require('./graphql/typeDefs');
 const { resolvers } = require('./graphql/resolvers');
 const auth = require('./middleware/isAuth');
 
+require('dotenv').config();
+
 async function startServer() {
     const app = express();
     const apolloServer = new ApolloServer({
@@ -43,7 +45,9 @@ async function startServer() {
     });
 
     app.listen(process.env.PORT || 7070, () => {
-      console.log('Server is running!');
+      // console.log(process.env.EMAILSENDER);
+      console.log(process.env.PORT);
+      // console.log(process.env.TOKEN);
   })
 
 }
