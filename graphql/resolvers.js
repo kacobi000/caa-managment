@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require('bcryptjs');
 const Str = require('@supercharge/strings');
 const Sib = require('sib-api-v3-sdk');
+const crypto = require('crypto');
+const { GraphQLError } = require('graphql');
 
 const client = Sib.ApiClient.instance;
 
@@ -26,15 +28,15 @@ const resolvers = {
                         equals: email
             }}})
                 if(!user){
-                    const error = new Error('User not found.');
-                    error.code = 401;
-                    throw error;
+                    throw new GraphQLError("User not found", {
+                        extensions: { code: 'BAD_USER_INPUT' },
+                      });
                 }
             const isEqual = await bcrypt.compare(password, user.password);
             if(!isEqual){
-                const error = new Error('Password is incorrect.');
-                error.code = 401;
-                throw error;
+                throw new GraphQLError("Password is inncorect", {
+                    extensions: { code: 'BAD_USER_INPUT' },
+                  });
             }
             const token = jwt.sign(
                 {
@@ -68,6 +70,49 @@ const resolvers = {
                 return false;
             }
             return true;
+        },
+        requestResetPassword: async function(parent, args) {
+            const existingUser = await prisma.user.findFirst({
+                where: {
+                    email: args.email
+                }
+            })
+            if(!existingUser){
+                throw new GraphQLError("Account with this email does not exist", {
+                    extensions: { code: 'BAD_USER_INPUT' },
+                  });
+            }
+            const resetToken = crypto.randomBytes(32).toString('hex');
+            const sender = {
+                email: 'caprojectmanagment@gmail.com'
+            };
+            
+            const receivers = [
+                {
+                    email: args.email
+                }
+            ];
+            
+           const message = await tranEmailApi.sendTransacEmail({
+                sender,
+                to: receivers,
+                subject: 'Password Reset',
+                textContent: `Use the following link to reset your password: 
+                http://localhost:${process.env.PORT}/reset-password/${resetToken}`
+            });
+
+            const resetTokenExpiration = Date.now() + 1200000;
+                const user = await prisma.user.update({
+                    where: {
+                        id: existingUser.id
+                    },
+                    data: {
+                        resetToken: resetToken,
+                        resetTokenExpiration: resetTokenExpiration.toString()
+                    }
+                })
+
+            return resetToken;
         }
 
     },
@@ -83,13 +128,15 @@ const resolvers = {
                 }
             });
             if (existingUser) {
-                const error = new Error('User exists already!');
-                throw error;
+                throw new GraphQLError("User already exists", {
+                    extensions: { code: 'BAD_USER_INPUT' },
+                  });
                 }
             const hashedPw = await bcrypt.hash(args.password, 12);
             if(!args.type === 'worker' || !args.type === 'student' ) {
-                const error = new Error('Bad type of account');
-                throw error;
+                throw new GraphQLError("Bad type of account", {
+                    extensions: { code: 'BAD_USER_INPUT' },
+                  });
             }
             const createdUser = await prisma.user.create({
                 data: {
@@ -153,47 +200,108 @@ const resolvers = {
             } 
                 return true;
         },
+        
+        resetPassword: async function(parent, args){
+            const user = await prisma.user.findFirst({
+                where: {
+                    resetToken: args.resetToken
+                }
+            })
+            if(!user){
+                throw new GraphQLError("Your token is not one that we send to you", {
+                    extensions: { code: 'TOKEN_ERROR' },
+                  });
+            }
+            const  tokenExpiration = parseInt(user.resetTokenExpiration);
+            if(tokenExpiration < Date.now()){
+                throw new GraphQLError("Token has expired, try again reset your password", {
+                    extensions: { code: 'TOKEN_ERROR' },
+                  });
+            }
+            const password = Str.random()
+            const hashedPw = await bcrypt.hash(password, 12);
+            const sender = {
+                email: 'caprojectmanagment@gmail.com'
+            };
+            
+            const receivers = [
+                {
+                    email: user.email
+                }
+            ];
+            
+           const message = await tranEmailApi.sendTransacEmail({
+                sender,
+                to: receivers,
+                subject: 'Password Reset',
+                textContent: `Your new password id: ${password}`
+            });
 
-        // updateUser: async function(parent, args){
-        //     const id = args.id;
-        //     const email = args.email;
-        //     const firstName = args.firstName;
-        //     let user = await prisma.user.findFirst({
-        //         where: {
-        //             id: id
-        //         }
-        //     })
-        //     if(user.type === "worker") {
-        //         const worker = await prisma.worker.update({
-        //             where: {
-        //                 userId: id
-        //             },
-        //             data: {
-        //                 firstName: firstName,
-        //                 position: position
-        //             }
-        //         })
-        //     } else if(user.type === "student") {
-        //         const student = await prisma.student.update({
-        //             where: {
-        //                 userId: id
-        //             },
-        //             data: {
-        //                 firstName: firstName
-        //             }
-        //         })
-        //     }
-        //     user = await prisma.user.update({
-        //         where: {
-        //             id: id
-        //         },
-        //         data: {
-        //             email: email,
-        //         }
-        //     })
-        //     return true;
-        // }
+
+            await prisma.user.update({
+                where: {
+                    id: user.id
+                },
+                data: {
+                    password: hashedPw
+                }
+            })
+            return true;
+        },
+        
+        updateUser: async function(parent, args){
+            const id = args.id;
+            let user = await prisma.user.findFirst({
+                where: {
+                    id: id
+                }
+            })
+
+            if(!user){
+                throw new GraphQLError("This user does not exist", {
+                    extensions: { code: 'BAD_INPUT' },
+                  });
+            }
+
+            if(user.type === "worker") {
+                const worker = await prisma.worker.update({
+                    where: {
+                        userId: id
+                    },
+                    data: {
+                        firstName: args.firstName,
+                        secondName: args.secondName,
+                        number: args.number,
+                        position: args.position
+                    }
+                })
+            } else if(user.type === "student") {
+                const student = await prisma.student.update({
+                    where: {
+                        userId: id
+                    },
+                    data: {
+                        firstName: args.firstName,
+                        secondName: args.secondName,
+                        number: args.number,
+                        project: args.project,
+                        field: args.field
+                    }
+                })
+            }
+            user = await prisma.user.update({
+                where: {
+                    id: id
+                },
+                data: {
+                    email: args.email,
+                    type: arg.type
+                }
+            })
+            return true;
+        }
     }
 }
+
 
 module.exports = { resolvers };

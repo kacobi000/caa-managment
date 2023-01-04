@@ -17,6 +17,8 @@ model User {
   password String
   email String
   type String
+  resetToken String?
+  resetTokenExpiration String?
 }
 
 model Worker {

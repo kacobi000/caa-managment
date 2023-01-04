@@ -23,6 +23,8 @@ const typeDefs = gql`
         email: String!
         password: String!
         type: String!
+        resetToken: String
+        resetTokenExpiration: String
     }
 
     type AuthData {
@@ -33,12 +35,14 @@ const typeDefs = gql`
     type Query {
     login(email: String!, password: String!): AuthData!
     contactWithAdmin(message: String!): Boolean!
+    requestResetPassword(email: String!): String!
     }
 
     type Mutation {
     createUser(email: String!, password: String!, type:String!): User!
     deleteUser(id: ID!): Boolean!
-#    updateUser(id: ID!, email: String!, firstName: String!, position: String): Boolean!
+    updateUser(id: ID!, email: String!, type: String!, firstName: String!, secondName: String!, number: String!): Boolean!
+    resetPassword(resetToken: String!): Boolean
     }
 
 `;
