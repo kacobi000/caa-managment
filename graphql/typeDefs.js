@@ -29,7 +29,7 @@ const typeDefs = gql`
 
     type AuthData {
         token: String!
-        user: User
+        user: User!
     }
 
     type Query {

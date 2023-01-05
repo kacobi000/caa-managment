@@ -48,6 +48,7 @@ const resolvers = {
               );
                 return { token: token, user: user }
         },
+
         contactWithAdmin: async function(parent, args) {
 
             const sender = {
@@ -71,6 +72,7 @@ const resolvers = {
             }
             return true;
         },
+
         requestResetPassword: async function(parent, args) {
             const existingUser = await prisma.user.findFirst({
                 where: {
@@ -86,21 +88,18 @@ const resolvers = {
             const sender = {
                 email: 'caprojectmanagment@gmail.com'
             };
-            
             const receivers = [
                 {
                     email: args.email
                 }
             ];
-            
            const message = await tranEmailApi.sendTransacEmail({
                 sender,
                 to: receivers,
                 subject: 'Password Reset',
                 textContent: `Use the following link to reset your password: 
-                http://localhost:${process.env.PORT}/reset-password/${resetToken}`
+                https://caa-managment.onrender.com/reset-password/${resetToken}`
             });
-
             const resetTokenExpiration = Date.now() + 1200000;
                 const user = await prisma.user.update({
                     where: {
@@ -111,10 +110,8 @@ const resolvers = {
                         resetTokenExpiration: resetTokenExpiration.toString()
                     }
                 })
-
             return resetToken;
         }
-
     },
 
     Mutation: {
@@ -159,9 +156,7 @@ const resolvers = {
                     }
                 })
             }
-
             return createdUser;
-            
         },
 
         deleteUser: async function(parent, args){
@@ -171,7 +166,6 @@ const resolvers = {
                     id: id
                 }
             });
-
             if(existingUser.type === "worker"){
                 await prisma.worker.delete({
                     where:{
@@ -223,21 +217,17 @@ const resolvers = {
             const sender = {
                 email: 'caprojectmanagment@gmail.com'
             };
-            
             const receivers = [
                 {
                     email: user.email
                 }
             ];
-            
            const message = await tranEmailApi.sendTransacEmail({
                 sender,
                 to: receivers,
                 subject: 'Password Reset',
                 textContent: `Your new password id: ${password}`
             });
-
-
             await prisma.user.update({
                 where: {
                     id: user.id
@@ -256,13 +246,11 @@ const resolvers = {
                     id: id
                 }
             })
-
             if(!user){
                 throw new GraphQLError("This user does not exist", {
                     extensions: { code: 'BAD_INPUT' },
                   });
             }
-
             if(user.type === "worker") {
                 const worker = await prisma.worker.update({
                     where: {
@@ -302,6 +290,5 @@ const resolvers = {
         }
     }
 }
-
 
 module.exports = { resolvers };
