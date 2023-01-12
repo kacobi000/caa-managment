@@ -11,11 +11,18 @@ const typeDefs = gql`
     }
 
     type Student {
+        user: User!
         name: String
         secondName: String
         number: String
         project: String
         field: String
+    }
+
+    type DailyStatus {
+        studentName: String!
+        description: String!
+        date: String!
     }
 
     type User {
@@ -45,6 +52,7 @@ const typeDefs = gql`
     deleteUser(id: ID!): Boolean!
     updateUser(id: ID!, email: String!, type: String!, firstName: String!, secondName: String!, number: String!): Boolean!
     resetPassword(resetToken: String!): Boolean
+    createDailyStatus(studentName: String!, description: String!): DailyStatus!
     }
 
 `;

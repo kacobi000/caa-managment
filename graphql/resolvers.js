@@ -33,18 +33,20 @@ const resolvers = {
                       });
                 }
 
-                if(user.isActive === false){
-                    throw new GraphQLError("User account is not active", {
-                        extensions: { code: 'NOT_ACTIVE_ACCOUNT' },
-                      });
-
-                }
             const isEqual = await bcrypt.compare(password, user.password);
             if(!isEqual){
                 throw new GraphQLError("Password is inncorect", {
                     extensions: { code: 'BAD_USER_INPUT' },
                   });
             }
+
+            if(user.isActive === false){
+                throw new GraphQLError("User account is not active", {
+                    extensions: { code: 'NOT_ACTIVE_ACCOUNT' },
+                  });
+
+            }
+
             const token = jwt.sign(
                 {
                   userId: user.id.toString(),
@@ -321,7 +323,12 @@ const resolvers = {
                 }
             })
             return true;
-        }
+        },
+        // createDailyStatus: async function(parent, args){
+
+        //     console.log(Date());
+
+        // }
     }
 }
 

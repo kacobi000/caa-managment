@@ -51,4 +51,7 @@ model DailyStatus {
   id Int @id @default(autoincrement())
   student Student @relation(fields: [studentId], references: [id])
   studentId Int @unique
+  studentName String
+  desription String
+  date DateTime
 }
