@@ -2,19 +2,14 @@ const {gql} = require('apollo-server-express');
 
 const typeDefs = gql`
 
-    type Worker {
+    type Employee {
         user: User!
-        firstName: String
-        secondName: String
-        number: String
         position: String
     }
 
     type Student {
         user: User!
-        name: String
-        secondName: String
-        number: String
+        dailyStatus: DailyStatus
         project: String
         field: String
     }
@@ -29,7 +24,12 @@ const typeDefs = gql`
         id: ID!
         email: String!
         password: String!
+        name: String
+        secondName: String
+        number: String
         type: String!
+        token: String
+        tokenExpiration: String
         resetToken: String
         resetTokenExpiration: String
         isActive: Boolean!
@@ -41,6 +41,7 @@ const typeDefs = gql`
     }
 
     type Query {
+    getUser(token: String!): Boolean
     login(email: String!, password: String!): AuthData!
     contactWithAdmin(message: String!): Boolean!
     requestResetPassword(email: String!): String!
@@ -48,11 +49,11 @@ const typeDefs = gql`
 
     type Mutation {
     changeIsActive(email: String!): User!
-    createUser(email: String!, password: String!, type:String!): User!
+    createUser(email: String!, password: String!, type: String!, firstName: String!, secondName: String!, number: String!): User!
     deleteUser(id: ID!): Boolean!
     updateUser(id: ID!, email: String!, type: String!, firstName: String!, secondName: String!, number: String!): Boolean!
     resetPassword(resetToken: String!): Boolean
-    createDailyStatus(studentName: String!, description: String!): DailyStatus!
+    createDailyStatus(token: String!, description: String!): DailyStatus!
     }
 
 `;

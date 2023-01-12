@@ -11,24 +11,26 @@ datasource db {
 }
 
 model User {
+  firstName String
+  secondName String
+  number String
   id String @id
-  worker Worker?
+  employee Employee?
   student Student?
   password String
   email String
   type String
+  token String?
+  tokenExpiration String?
   resetToken String?
   resetTokenExpiration String?
   isActive Boolean @default(true)
 }
 
-model Worker {
+model Employee {
   id Int @id @default(autoincrement())
   user User @relation(fields: [userId], references: [id])
   userId String @unique
-  firstName String?
-  secondName String?
-  number String?
   position String?
   Student  Student[]
 }
@@ -37,12 +39,9 @@ model Student {
   id Int @id @default(autoincrement())
   user User @relation(fields: [userId], references: [id])
   userId String @unique
-  dailyStatus DailyStatus?
-  firstName String?
-  secondName String?
-  number String?
-  mentor Worker? @relation(fields: [workerId], references: [id])
-  workerId Int?
+  dailyStatus DailyStatus[]
+  mentor Employee? @relation(fields: [employeeId], references: [id])
+  employeeId Int?
   project String?
   field String?
 }
@@ -50,8 +49,8 @@ model Student {
 model DailyStatus {
   id Int @id @default(autoincrement())
   student Student @relation(fields: [studentId], references: [id])
-  studentId Int @unique
+  studentId Int 
   studentName String
-  desription String
-  date DateTime
+  description String
+  date DateTime @default(now())
 }

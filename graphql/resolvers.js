@@ -19,6 +19,10 @@ const prisma = new PrismaClient();
 const resolvers = {
 
     Query: {
+        getUser: async function(parent, args){
+            const user = await prisma.dailyStatus.findMany();
+            console.log(user);
+        },
         login: async function(parent, args) {
             const email = args.email;
             const password = args.password;
@@ -55,6 +59,19 @@ const resolvers = {
                 'MmcXUQpSl3KxyAw',
                 { expiresIn: '1h' }
               );
+
+              const expiration = Date.now() + 3600000;
+
+                await prisma.user.update({
+                    where: {
+                        id: user.id
+                    },
+                    data: {
+                        token: token,
+                        tokenExpiration: expiration.toString()
+                    }
+                })
+
                 return { token: token, user: user }
         },
 
@@ -166,7 +183,7 @@ const resolvers = {
                   });
                 }
             const hashedPw = await bcrypt.hash(args.password, 12);
-            if(!args.type === 'worker' || !args.type === 'student' ) {
+            if(!args.type === 'employee' || !args.type === 'student' ) {
                 throw new GraphQLError("Bad type of account", {
                     extensions: { code: 'BAD_USER_INPUT' },
                   });
@@ -176,11 +193,14 @@ const resolvers = {
                     id: id,
                     email: args.email,
                     password: hashedPw,
-                    type: args.type
+                    type: args.type,
+                    firstName: args.firstName,
+                    secondName: args.secondName,
+                    number: args.number
                 }
             })
-            if(args.type === "worker"){
-                await prisma.worker.create({
+            if(args.type === "employee"){
+                await prisma.employee.create({
                     data:{
                         userId: id
                     }
@@ -202,8 +222,8 @@ const resolvers = {
                     id: id
                 }
             });
-            if(existingUser.type === "worker"){
-                await prisma.worker.delete({
+            if(existingUser.type === "employee"){
+                await prisma.employee.delete({
                     where:{
                         userId: id
                     }
@@ -287,8 +307,8 @@ const resolvers = {
                     extensions: { code: 'BAD_INPUT' },
                   });
             }
-            if(user.type === "worker") {
-                const worker = await prisma.worker.update({
+            if(user.type === "employee") {
+                const employee = await prisma.employee.update({
                     where: {
                         userId: id
                     },
@@ -324,11 +344,42 @@ const resolvers = {
             })
             return true;
         },
-        // createDailyStatus: async function(parent, args){
 
-        //     console.log(Date());
+        createDailyStatus: async function(parent, args){
 
-        // }
+            const user = await prisma.user.findFirst({
+                where:  {
+                    token: args.token
+                }
+            })
+
+            if(!user){
+                throw new GraphQLError("This user does not exist", {
+                    extensions: { code: 'BAD_INPUT' },
+                  });
+            }
+
+            const student = await prisma.student.findFirst({
+                where: {
+                    userId: user.id
+                }
+            })
+
+            console.log(student)
+            console.log(user)
+
+            const dailyStatus = await prisma.dailyStatus.create({
+                data: {
+                    studentId: student.id,
+                    studentName: "Marek",
+                    description: args.description
+                }
+            })
+
+            console.log(dailyStatus)
+
+            return dailyStatus;
+        }
     }
 }
 
