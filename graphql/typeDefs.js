@@ -40,6 +40,7 @@ const typeDefs = gql`
     }
 
     type Mutation {
+    changeIsActive(email: String!): User!
     createUser(email: String!, password: String!, type:String!): User!
     deleteUser(id: ID!): Boolean!
     updateUser(id: ID!, email: String!, type: String!, firstName: String!, secondName: String!, number: String!): Boolean!

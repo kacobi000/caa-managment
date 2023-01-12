@@ -115,6 +115,33 @@ const resolvers = {
     },
 
     Mutation: {
+        changeIsActive: async function(parent, args){
+            const existingUser = await prisma.user.findFirst({
+                where: {
+                    email: args.email
+                }
+            })
+
+            const isActive = existingUser.isActive;
+
+            if(!existingUser){
+                throw new GraphQLError("No user found", {
+                    extensions: { code: 'BAD_USER_INPUT' },
+                  });
+            }
+
+            const user = await prisma.user.update({
+                where: {
+                    id: existingUser.id
+                },
+                data:{
+                    isActive: !isActive
+                }
+            })
+
+            return user;
+        },
+
         createUser: async function(parent, args){
             const id = Str.random()
             const existingUser = await prisma.user.findFirst({ 
