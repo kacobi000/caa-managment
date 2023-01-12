@@ -19,6 +19,7 @@ model User {
   type String
   resetToken String?
   resetTokenExpiration String?
+  isActive Boolean @default(true)
 }
 
 model Worker {

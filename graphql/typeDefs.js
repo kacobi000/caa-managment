@@ -25,6 +25,7 @@ const typeDefs = gql`
         type: String!
         resetToken: String
         resetTokenExpiration: String
+        isActive: Boolean!
     }
 
     type AuthData {
