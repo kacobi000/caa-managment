@@ -24,7 +24,7 @@ const typeDefs = gql`
         id: ID!
         email: String!
         password: String!
-        name: String
+        firstName: String
         secondName: String
         number: String
         type: String!
