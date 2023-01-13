@@ -20,8 +20,8 @@ const resolvers = {
 
     Query: {
         getDaily: async function(parent, args){
-            const user = await prisma.dailyStatus.findMany();
-            console.log(user);
+            const daily = await prisma.dailyStatus.findMany();
+            return daily;
         },
         login: async function(parent, args) {
             const email = args.email;
