@@ -19,7 +19,7 @@ const prisma = new PrismaClient();
 const resolvers = {
 
     Query: {
-        getUser: async function(parent, args){
+        getDaily: async function(parent, args){
             const user = await prisma.dailyStatus.findMany();
             console.log(user);
         },
@@ -222,6 +222,7 @@ const resolvers = {
                     id: id
                 }
             });
+            console.log(existingUser)
             if(existingUser.type === "employee"){
                 await prisma.employee.delete({
                     where:{
@@ -371,7 +372,7 @@ const resolvers = {
             const dailyStatus = await prisma.dailyStatus.create({
                 data: {
                     studentId: student.id,
-                    studentName: "Marek",
+                    studentName: user.firstName,
                     description: args.description
                 }
             })

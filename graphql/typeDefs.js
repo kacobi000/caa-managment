@@ -41,7 +41,7 @@ const typeDefs = gql`
     }
 
     type Query {
-    getUser(token: String!): Boolean
+    getDaily(token: String): Boolean
     login(email: String!, password: String!): AuthData!
     contactWithAdmin(message: String!): Boolean!
     requestResetPassword(email: String!): String!
