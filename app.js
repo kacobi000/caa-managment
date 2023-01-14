@@ -36,6 +36,8 @@ async function startServer() {
         next();
       });
 
+    app.use(auth);
+
     app.use((error, req, res, next) => {
       console.log(error);
       const status = error.statusCode || 500;

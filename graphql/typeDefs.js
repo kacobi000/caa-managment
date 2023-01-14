@@ -2,7 +2,7 @@ const {gql} = require('apollo-server-express');
 
 const typeDefs = gql`
 
-    type Employee {
+    type Worker {
         user: User!
         position: String
     }

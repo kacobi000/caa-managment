@@ -140,8 +140,7 @@ const resolvers = {
             return resetToken;
         },
 
-        getUsers: async function(parent, args){
-
+        getUsers: async function(parent, args, { req }){
             if(!args.type){
                const users = await prisma.user.findMany();
                return users;
@@ -200,7 +199,7 @@ const resolvers = {
                   });
                 }
             const hashedPw = await bcrypt.hash(args.password, 12);
-            if(!args.type === 'employee' || !args.type === 'student' ) {
+            if(!args.type === 'worker' || !args.type === 'student' ) {
                 throw new GraphQLError("Bad type of account", {
                     extensions: { code: 'BAD_USER_INPUT' },
                   });
@@ -216,8 +215,8 @@ const resolvers = {
                     number: args.number
                 }
             })
-            if(args.type === "employee"){
-                await prisma.employee.create({
+            if(args.type === "worker"){
+                await prisma.worker.create({
                     data:{
                         userId: id
                     }
@@ -240,8 +239,8 @@ const resolvers = {
                 }
             });
             console.log(existingUser)
-            if(existingUser.type === "employee"){
-                await prisma.employee.delete({
+            if(existingUser.type === "worker"){
+                await prisma.worker.delete({
                     where:{
                         userId: id
                     }
@@ -325,8 +324,8 @@ const resolvers = {
                     extensions: { code: 'BAD_INPUT' },
                   });
             }
-            if(user.type === "employee") {
-                const employee = await prisma.employee.update({
+            if(user.type === "worker") {
+                const worker = await prisma.worker.update({
                     where: {
                         userId: id
                     },
