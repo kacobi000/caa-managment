@@ -366,8 +366,28 @@ const resolvers = {
                 }
             })
 
-            console.log(student)
-            console.log(user)
+            const daily = await prisma.dailyStatus.findMany({
+                where: {
+                    studentId: student.id,
+                }
+            });
+
+            const currentDate = new Date();
+            let rekord = 0;
+
+            daily.find( i => {
+
+                const date = new Date(daily[rekord].date);
+
+                console.log(date);
+                rekord++;
+
+                if( date.getDate()  === currentDate.getDate()){
+                    throw new GraphQLError("Daily has been already added today", {
+                        extensions: { code: 'DAILY_ESXISTS' },
+                      });
+                }
+            })
 
             const dailyStatus = await prisma.dailyStatus.create({
                 data: {
@@ -376,9 +396,7 @@ const resolvers = {
                     description: args.description
                 }
             })
-
-            console.log(dailyStatus)
-
+            
             return dailyStatus;
         }
     }
