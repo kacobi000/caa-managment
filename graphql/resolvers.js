@@ -23,6 +23,7 @@ const resolvers = {
             const daily = await prisma.dailyStatus.findMany();
             return daily;
         },
+
         login: async function(parent, args) {
             const email = args.email;
             const password = args.password;
@@ -137,6 +138,22 @@ const resolvers = {
                     }
                 })
             return resetToken;
+        },
+
+        getUsers: async function(parent, args){
+
+            if(!args.type){
+               const users = await prisma.user.findMany();
+               return users;
+            } else {
+                const users = await prisma.user.findMany({
+                where: {
+                    type: args.type
+                }
+            })
+            return users;
+        }
+                    
         }
     },
 

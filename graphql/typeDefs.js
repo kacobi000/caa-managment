@@ -45,6 +45,7 @@ const typeDefs = gql`
     login(email: String!, password: String!): AuthData!
     contactWithAdmin(message: String!): Boolean!
     requestResetPassword(email: String!): String!
+    getUsers(type: String): [User!]
     }
 
     type Mutation {
