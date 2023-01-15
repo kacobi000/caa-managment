@@ -61,7 +61,7 @@ const resolvers = {
                 { expiresIn: '1h' }
               );
 
-              const expiration = Date.now() + 3600000;
+            //   const expiration = Date.now() + 3600000;
 
                 await prisma.user.update({
                     where: {
@@ -69,7 +69,7 @@ const resolvers = {
                     },
                     data: {
                         token: token,
-                        tokenExpiration: expiration.toString()
+                        // tokenExpiration: expiration.toString()
                     }
                 })
 

@@ -29,7 +29,7 @@ const typeDefs = gql`
         number: String
         type: String!
         token: String
-        tokenExpiration: String
+#      tokenExpiration: String
         resetToken: String
         resetTokenExpiration: String
         isActive: Boolean!
