@@ -13,7 +13,11 @@ async function startServer() {
     const app = express();
     const apolloServer = new ApolloServer({
         typeDefs,
-        resolvers
+        resolvers,
+        context: ({ req }) => {
+          const headers = req.headers;
+          return { headers };
+        },
     });
 
     await apolloServer.start();

@@ -28,11 +28,19 @@ const typeDefs = gql`
         secondName: String
         number: String
         type: String!
-        token: String
-#      tokenExpiration: String
+#        token: String
+#        tokenExpiration: String
         resetToken: String
         resetTokenExpiration: String
         isActive: Boolean!
+    }
+
+    type Course {
+    id: ID!
+    name: String!
+    platform: String!
+    login: String!
+    password: String!
     }
 
     type AuthData {
@@ -46,6 +54,7 @@ const typeDefs = gql`
     contactWithAdmin(message: String!): Boolean!
     requestResetPassword(email: String!): String!
     getUsers(type: String): [User!]
+    getCoursers(id: ID!): [Course!]
     }
 
     type Mutation {
@@ -54,7 +63,8 @@ const typeDefs = gql`
     deleteUser(id: ID!): Boolean!
     updateUser(id: ID!, email: String!, type: String!, firstName: String!, secondName: String!, number: String!): Boolean!
     resetPassword(resetToken: String!): Boolean
-    createDailyStatus(token: String!, description: String!): DailyStatus!
+    createDailyStatus(description: String!): DailyStatus!
+    addCourse(id: ID!, name: String!, platform: String!, login: String!, password: String!): Boolean!
     }
 
 `;

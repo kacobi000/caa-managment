@@ -19,7 +19,30 @@ const prisma = new PrismaClient();
 const resolvers = {
 
     Query: {
-        getDaily: async function(parent, args){
+        getDaily: async function(parent, args, { headers } ){
+
+            const auth = await prisma.user.findFirst({
+                where: {
+                    token: headers.token
+                }
+            })
+
+            if(!auth){
+                throw new GraphQLError("Provided Token is invalid", {
+                    extensions: { code: 'WRONG_TOKEN' },
+                  });
+            }
+
+            const decoded = jwt.verify(headers.token, 'MmcXUQpSl3KxyAw');
+            const expiration = new Date(decoded.exp * 1000);
+            const now = new Date();
+      
+            if (now >= expiration) {
+                throw new GraphQLError("Your token expired", {
+                    extensions: { code: 'TOKEN_EXPIRED' },
+                  });
+            }
+
             const daily = await prisma.dailyStatus.findMany();
             return daily;
         },
@@ -60,18 +83,6 @@ const resolvers = {
                 'MmcXUQpSl3KxyAw',
                 { expiresIn: '1h' }
               );
-
-            //   const expiration = Date.now() + 3600000;
-
-                await prisma.user.update({
-                    where: {
-                        id: user.id
-                    },
-                    data: {
-                        token: token,
-                        // tokenExpiration: expiration.toString()
-                    }
-                })
 
                 return { token: token, user: user }
         },
@@ -140,7 +151,7 @@ const resolvers = {
             return resetToken;
         },
 
-        getUsers: async function(parent, args, { req }){
+        getUsers: async function(parent, args){
             if(!args.type){
                const users = await prisma.user.findMany();
                return users;
@@ -153,6 +164,11 @@ const resolvers = {
             return users;
         }
                     
+        },
+
+        getCoursers: async function(parent, args, { headers }){
+            const courses = await prisma.course.findMany();
+            return courses;
         }
     },
 
@@ -238,7 +254,6 @@ const resolvers = {
                     id: id
                 }
             });
-            console.log(existingUser)
             if(existingUser.type === "worker"){
                 await prisma.worker.delete({
                     where:{
@@ -362,16 +377,16 @@ const resolvers = {
             return true;
         },
 
-        createDailyStatus: async function(parent, args){
+        createDailyStatus: async function(parent, args, { headers } ){
 
             const user = await prisma.user.findFirst({
                 where:  {
-                    token: args.token
+                    token: headers.token
                 }
             })
 
             if(!user){
-                throw new GraphQLError("This user does not exist", {
+                throw new GraphQLError("Your token is invalid", {
                     extensions: { code: 'BAD_INPUT' },
                   });
             }
@@ -395,7 +410,6 @@ const resolvers = {
 
                 const date = new Date(daily[rekord].date);
 
-                console.log(date);
                 rekord++;
 
                 if( date.getDate()  === currentDate.getDate()){
@@ -414,6 +428,39 @@ const resolvers = {
             })
             
             return dailyStatus;
+        },
+
+        addCourse: async function(parent, args){
+            const student = await prisma.student.findFirst({
+                where: {
+                    userId: args.id
+                }
+            })
+
+            if(!student){
+                throw new GraphQLError("User does not exists", {
+                    extensions: { code: 'WRONG_USER' },
+                  });
+            }
+
+            const hashedPw = await bcrypt.hash(args.password, 12);
+
+            const course = await prisma.course.create({
+                data: {
+                    studentId: student.id,
+                    name: args.name,
+                    platform: args.platform,
+                    login: args.login,
+                    password: hashedPw
+                }
+            })
+
+            if(!course){
+                return false;
+            }
+
+            console.log(course)
+            return true;
         }
     }
 }

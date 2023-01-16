@@ -40,6 +40,7 @@ model Student {
   user User @relation(fields: [userId], references: [id])
   userId String @unique
   dailyStatus DailyStatus[]
+  course Course[]
   mentor Worker? @relation(fields: [workerId], references: [id])
   workerId Int?
   project String?
@@ -53,4 +54,14 @@ model DailyStatus {
   studentName String
   description String
   date DateTime @default(now())
+}
+
+model Course {
+  id Int @id @default(autoincrement())
+  student Student @relation(fields: [studentId], references: [id])
+  studentId Int
+  name String
+  platform String
+  login String
+  password String
 }
