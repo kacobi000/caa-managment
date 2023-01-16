@@ -15,8 +15,8 @@ async function startServer() {
         typeDefs,
         resolvers,
         context: ({ req }) => {
-          const headers = req.headers;
-          return { headers };
+          const body = req.body;
+          return { body };
         },
     });
 

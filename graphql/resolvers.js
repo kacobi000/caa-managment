@@ -19,9 +19,9 @@ const prisma = new PrismaClient();
 const resolvers = {
 
     Query: {
-        getDaily: async function(parent, args, { headers } ){
+        getDaily: async function(parent, args, { body } ){
 
-            const decoded = jwt.verify(headers.token, 'MmcXUQpSl3KxyAw');
+            const decoded = jwt.verify(body.token, 'MmcXUQpSl3KxyAw');
             const expiration = new Date(decoded.exp * 1000);
             const now = new Date();
       
@@ -154,7 +154,7 @@ const resolvers = {
                     
         },
 
-        getCoursers: async function(parent, args, { headers }){
+        getCoursers: async function(parent, args, { body }){
             const courses = await prisma.course.findMany();
             return courses;
         }
@@ -365,9 +365,9 @@ const resolvers = {
             return true;
         },
 
-        createDailyStatus: async function(parent, args, { headers } ){
+        createDailyStatus: async function(parent, args, { body } ){
 
-            const decoded = jwt.verify(headers.token, 'MmcXUQpSl3KxyAw');
+            const decoded = jwt.verify(body.token, 'MmcXUQpSl3KxyAw');
             const expiration = new Date(decoded.exp * 1000);
             const now = new Date();
       
