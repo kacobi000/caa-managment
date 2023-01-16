@@ -31,6 +31,8 @@ const resolvers = {
                   });
             }
 
+            console.log(expiration)
+
             const daily = await prisma.dailyStatus.findMany();
             return daily;
         },
@@ -154,10 +156,21 @@ const resolvers = {
                     
         },
 
-        getCoursers: async function(parent, args, { headers }){
-            const courses = await prisma.course.findMany();
-            return courses;
-        }
+        // getCoursers: async function(parent, args, { headers }){
+
+        //     const decoded = jwt.verify(headers.authorization, 'MmcXUQpSl3KxyAw');
+        //     const expiration = new Date(decoded.exp * 1000);
+        //     const now = new Date();
+      
+        //     if (now >= expiration) {
+        //         throw new GraphQLError("Your token expired", {
+        //             extensions: { code: 'TOKEN_EXPIRED' },
+        //           });
+        //     }
+
+        //     const courses = await prisma.course.findMany();
+        //     return courses;
+        // }
     },
 
     Mutation: {
@@ -432,18 +445,34 @@ const resolvers = {
             return true;
         },
 
-        addCourse: async function(parent, args){
-            const student = await prisma.student.findFirst({
-                where: {
-                    userId: args.id
+        addCourse: async function(parent, args, { headers }){
+            const decoded = jwt.verify(headers.authorization, 'MmcXUQpSl3KxyAw');
+            const expiration = new Date(decoded.exp * 1000);
+            const now = new Date();
+      
+            if (now >= expiration) {
+                throw new GraphQLError("Your token expired", {
+                    extensions: { code: 'TOKEN_EXPIRED' },
+                  });
+            }
+
+            const user = await prisma.user.findFirst({
+                where:  {
+                    id: decoded.userId
                 }
             })
 
-            if(!student){
-                throw new GraphQLError("User does not exists", {
-                    extensions: { code: 'WRONG_USER' },
+            if(!user){
+                throw new GraphQLError("Your token is invalid", {
+                    extensions: { code: 'BAD_INPUT' },
                   });
             }
+
+            const student = await prisma.student.findFirst({
+                where: {
+                    userId: user.id
+                }
+            })
 
             const hashedPw = await bcrypt.hash(args.password, 12);
 

@@ -28,8 +28,6 @@ const typeDefs = gql`
         secondName: String
         number: String
         type: String!
-#        token: String
-#        tokenExpiration: String
         resetToken: String
         resetTokenExpiration: String
         isActive: Boolean!
@@ -53,8 +51,8 @@ const typeDefs = gql`
     login(email: String!, password: String!): AuthData!
     contactWithAdmin(message: String!): Boolean!
     requestResetPassword(email: String!): String!
-    getUsers(type: String): [User!]
-    getCoursers(id: ID!): [Course!]
+    getUsers: [User!]
+#    getCoursers(id: ID!): [Course!]
     }
 
     type Mutation {
@@ -64,7 +62,7 @@ const typeDefs = gql`
     updateUser(id: ID!, email: String!, type: String!, firstName: String!, secondName: String!, number: String!): Boolean!
     resetPassword(resetToken: String!): Boolean
     createDailyStatus(description: String!): Boolean!
-    addCourse(id: ID!, name: String!, platform: String!, login: String!, password: String!): Boolean!
+    addCourse(name: String!, platform: String!, login: String!, password: String!): Boolean!
     }
 
 `;
