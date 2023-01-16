@@ -5,6 +5,9 @@ const Str = require('@supercharge/strings');
 const Sib = require('sib-api-v3-sdk');
 const crypto = require('crypto');
 const { GraphQLError } = require('graphql');
+const bodyParser = require('body-parser');
+
+
 
 const client = Sib.ApiClient.instance;
 
@@ -15,6 +18,8 @@ apiKey.apiKey = process.env.EMAIL_SENDER;
 const tranEmailApi = new Sib.TransactionalEmailsApi();
 
 const prisma = new PrismaClient();
+
+app.use(bodyParser.json());
 
 const resolvers = {
 
