@@ -13,6 +13,8 @@ async function startServer() {
     const apolloServer = new ApolloServer({
         typeDefs,
         resolvers,
+        introspection: true,
+        playground: true,
         context: ({ req }) => {
           const headers = req.headers;
           return { headers };
@@ -40,6 +42,8 @@ async function startServer() {
       });
 
     app.use(auth);
+
+    console.log(process.env.NODE_ENV)
 
     app.use((error, req, res, next) => {
       console.log(error);
