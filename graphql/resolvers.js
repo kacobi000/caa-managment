@@ -21,18 +21,6 @@ const resolvers = {
     Query: {
         getDaily: async function(parent, args, { headers } ){
 
-            const auth = await prisma.user.findFirst({
-                where: {
-                    token: headers.token
-                }
-            })
-
-            if(!auth){
-                throw new GraphQLError("Provided Token is invalid", {
-                    extensions: { code: 'WRONG_TOKEN' },
-                  });
-            }
-
             const decoded = jwt.verify(headers.token, 'MmcXUQpSl3KxyAw');
             const expiration = new Date(decoded.exp * 1000);
             const now = new Date();
@@ -379,9 +367,19 @@ const resolvers = {
 
         createDailyStatus: async function(parent, args, { headers } ){
 
+            const decoded = jwt.verify(headers.token, 'MmcXUQpSl3KxyAw');
+            const expiration = new Date(decoded.exp * 1000);
+            const now = new Date();
+      
+            if (now >= expiration) {
+                throw new GraphQLError("Your token expired", {
+                    extensions: { code: 'TOKEN_EXPIRED' },
+                  });
+            }
+
             const user = await prisma.user.findFirst({
                 where:  {
-                    token: headers.token
+                    id: decoded.userId
                 }
             })
 
