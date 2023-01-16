@@ -49,7 +49,7 @@ const typeDefs = gql`
     }
 
     type Query {
-    getDaily: [DailyStatus!]
+    getDaily: [DailyStatus]
     login(email: String!, password: String!): AuthData!
     contactWithAdmin(message: String!): Boolean!
     requestResetPassword(email: String!): String!
@@ -63,7 +63,7 @@ const typeDefs = gql`
     deleteUser(id: ID!): Boolean!
     updateUser(id: ID!, email: String!, type: String!, firstName: String!, secondName: String!, number: String!): Boolean!
     resetPassword(resetToken: String!): Boolean
-    createDailyStatus(description: String!): DailyStatus!
+    createDailyStatus(description: String!): Boolean!
     addCourse(id: ID!, name: String!, platform: String!, login: String!, password: String!): Boolean!
     }
 

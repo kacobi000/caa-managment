@@ -425,7 +425,11 @@ const resolvers = {
                 }
             })
             
-            return dailyStatus;
+            if(!dailyStatus){
+                return false;
+            }
+
+            return true;
         },
 
         addCourse: async function(parent, args){
