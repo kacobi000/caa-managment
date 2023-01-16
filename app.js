@@ -1,7 +1,6 @@
 const express = require('express');
 const { ApolloServer, gql } = require('apollo-server-express');
 const fs = require('fs');
-const bodyParser = require('body-parser');
 
 const { typeDefs } = require('./graphql/typeDefs');
 const { resolvers } = require('./graphql/resolvers');
@@ -15,8 +14,8 @@ async function startServer() {
         typeDefs,
         resolvers,
         context: ({ req }) => {
-          const body = req.body;
-          return { body };
+          const headers = req.headers;
+          return { headers };
         },
     });
 
@@ -39,9 +38,6 @@ async function startServer() {
         }
         next();
       });
-
-
-    app.use(bodyParser.json());
 
     app.use(auth);
 

@@ -5,7 +5,6 @@ const Str = require('@supercharge/strings');
 const Sib = require('sib-api-v3-sdk');
 const crypto = require('crypto');
 const { GraphQLError } = require('graphql');
-const bodyParser = require('body-parser');
 
 const client = Sib.ApiClient.instance;
 
@@ -20,9 +19,9 @@ const prisma = new PrismaClient();
 const resolvers = {
 
     Query: {
-        getDaily: async function(parent, args, { body } ){
+        getDaily: async function(parent, args, { headers } ){
 
-            const decoded = jwt.verify(body.token, 'MmcXUQpSl3KxyAw');
+            const decoded = jwt.verify(headers.authorization, 'MmcXUQpSl3KxyAw');
             const expiration = new Date(decoded.exp * 1000);
             const now = new Date();
       
@@ -155,7 +154,7 @@ const resolvers = {
                     
         },
 
-        getCoursers: async function(parent, args, { body }){
+        getCoursers: async function(parent, args, { headers }){
             const courses = await prisma.course.findMany();
             return courses;
         }
@@ -366,9 +365,9 @@ const resolvers = {
             return true;
         },
 
-        createDailyStatus: async function(parent, args, { body } ){
+        createDailyStatus: async function(parent, args, { headers } ){
 
-            const decoded = jwt.verify(body.token, 'MmcXUQpSl3KxyAw');
+            const decoded = jwt.verify(headers.authorization, 'MmcXUQpSl3KxyAw');
             const expiration = new Date(decoded.exp * 1000);
             const now = new Date();
       
