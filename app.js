@@ -1,7 +1,7 @@
 const express = require('express');
 const { ApolloServer, gql } = require('apollo-server-express');
 const fs = require('fs');
-const bodyParser = require('body-parser');
+
 
 const { typeDefs } = require('./graphql/typeDefs');
 const { resolvers } = require('./graphql/resolvers');
@@ -14,9 +14,9 @@ async function startServer() {
     const apolloServer = new ApolloServer({
         typeDefs,
         resolvers,
-        context: ({ req }) => {
-          const body = req.body;
-          return { body };
+        context: ({ req }) => {a
+          const headers = req.headers;
+          return { headers };
         },
     });
 
